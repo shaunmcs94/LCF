@@ -43,15 +43,15 @@ module.exports = async (req, res) => {
   // Load Twilio credentials and service SID
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
-  const serviceSid = process.env.TWILIO_SERVICE_SID;
+  const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID; // <<<<--- FIXED HERE
 
   // Debug serviceSid value and length
-  console.log('DEBUG: TWILIO_SERVICE_SID', process.env.TWILIO_SERVICE_SID);
+  console.log('DEBUG: TWILIO_VERIFY_SERVICE_SID', process.env.TWILIO_VERIFY_SERVICE_SID);
   console.log('DEBUG: serviceSid value and length', serviceSid, (serviceSid || '').length);
 
   // Validate serviceSid format
   if (!serviceSid || !serviceSid.startsWith('VA') || serviceSid.length !== 34) {
-    res.status(500).json({ error: 'TWILIO_SERVICE_SID is missing or invalid.' });
+    res.status(500).json({ error: 'TWILIO_VERIFY_SERVICE_SID is missing or invalid.' });
     return;
   }
 
