@@ -1,7 +1,7 @@
 const twilio = require('twilio');
 
 module.exports = async (req, res) => {
-  // Handle CORS preflight request
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  // Parse body (needed on Vercel Node 22+)
+  // Parse body (Vercel Node 22+ may need manual JSON parsing)
   let body = req.body;
   if (!body || typeof body === "string") {
     try {
@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
     }
   }
 
-  // Debug: log incoming body
+  // Debug the received body
   console.log('DEBUG: Received body', body);
 
   const { code, phone } = body;
@@ -40,10 +40,20 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // Twilio credentials from environment variables
+  // Load Twilio credentials and service SID
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
   const serviceSid = process.env.TWILIO_SERVICE_SID;
+
+  // Debug serviceSid value and length
+  console.log('DEBUG: TWILIO_SERVICE_SID', process.env.TWILIO_SERVICE_SID);
+  console.log('DEBUG: serviceSid value and length', serviceSid, (serviceSid || '').length);
+
+  // Validate serviceSid format
+  if (!serviceSid || !serviceSid.startsWith('VA') || serviceSid.length !== 34) {
+    res.status(500).json({ error: 'TWILIO_SERVICE_SID is missing or invalid.' });
+    return;
+  }
 
   const client = twilio(accountSid, authToken);
 
