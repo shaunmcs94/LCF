@@ -1,10 +1,24 @@
 const twilio = require('twilio');
 
 module.exports = async (req, res) => {
+  // --- CORS preflight handling
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.status(200).end();
+    return;
+  }
+
+  // --- Only allow POST
   if (req.method !== 'POST') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.status(405).json({ error: 'Method Not Allowed' });
     return;
   }
+
+  // --- Always set CORS header for POST
+  res.setHeader('Access-Control-Allow-Origin', '*');
 
   const { code, phone } = req.body;
 
