@@ -1,21 +1,36 @@
 const twilio = require('twilio');
 
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method Not Allowed' });
+    return;
+  }
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Only POST allowed' });
+  const { code, phone } = req.body;
 
-  const { phone, code } = req.body;
+  if (!code || !phone) {
+    res.status(400).json({ error: 'Code and phone are required.' });
+    return;
+  }
+
+  // Set these with your real Twilio credentials and service SID
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const serviceSid = process.env.TWILIO_SERVICE_SID;
+
+  const client = twilio(accountSid, authToken);
 
   try {
-    const verification_check = await client.verify
-      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+    const check = await client.verify.v2
+      .services(serviceSid)
       .verificationChecks.create({ to: phone, code });
 
-    res.status(200).json({ success: verification_check.status === 'approved' });
+    if (check.status === 'approved') {
+      res.status(200).json({ success: true });
+    } else {
+      res.status(200).json({ success: false, error: 'Incorrect or expired code.' });
+    }
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Verification failed.' });
+    res.status(400).json({ success: false, error: err.message });
   }
-}
-
+};
