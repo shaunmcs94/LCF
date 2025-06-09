@@ -16,7 +16,11 @@ export default async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
 
+  // Parse the body (for debugging)
   const { phone } = req.body;
+  if (!phone) {
+    return res.status(400).json({ error: "Missing 'phone' in request body" });
+  }
 
   try {
     const verification = await client.verify
