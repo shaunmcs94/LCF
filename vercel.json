@@ -1,8 +1,0 @@
-{
-  "version": 2,
-  "builds": [
-    { "src": "api/send-code.js", "use": "@vercel/node" },
-    { "src": "api/check-code.js", "use": "@vercel/node" }
-  ]
-}
-
